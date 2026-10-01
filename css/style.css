@@ -1,0 +1,114 @@
+:root {
+    --border-hi: #5c5c7a;
+    --border-lo: #1c1c30;
+    --text-main: #f8f8f8;
+    --text-dim: #8888a8;
+    --hp-1: #fcd34d;
+    --bg-game: #000000;
+}
+
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    color: var(--text-main);
+    background-color: var(--bg-game);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+}
+
+.title {
+    color: var(--hp-1);
+    margin-bottom: 12px;
+    letter-spacing: 4px;
+}
+
+.top-bar {
+    width: 480px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: var(--text-main);
+    background-color: var(--bg-game);
+    border-top: 4px solid var(--border-hi);
+    border-bottom: 4px solid var(--border-lo);
+    padding: 10px 14px;
+}
+
+.stat b {
+    color: var(--hp-1);
+    margin-left: 4px;
+}
+
+#gameArea {
+    position: relative;
+    width: 480px;
+    height: 640px;
+    background-color: #000;
+    border: 4px solid #7a5c5c;
+    overflow: hidden;
+}
+
+#paddle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 200px;
+    height: 12px;
+    background-color: #f8f8f8;
+    box-shadow:
+            inset 0 -3px 0 #b00020,
+            inset 0 2px 0 #ffffff;
+    will-change: transform;
+    z-index: 3;
+}
+
+#ball {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    background-color: var(--hp-1);
+    box-shadow:
+            inset 0 -3px 0 #b45309,
+            inset 0 2px 0 #fef3c7;
+    will-change: transform;
+    z-index: 4;
+}
+
+#bricks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.brick {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 24px;
+    background-color: #4ade80;
+    box-shadow:
+            inset 0 -4px 0 rgba(0,0,0,0.35),
+            inset 0 2px 0 rgba(255,255,255,0.45);
+    will-change: transform;
+}
+
+.brick.hp-2 { background-color: #38bdf8; }
+
+.brick.hp-3 { background-color: #fcd34d; }
