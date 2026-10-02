@@ -12,15 +12,31 @@
 
     <div class="top-bar">
         <span class="stat">SCORE: <b id="scoreVal">0</b></span>
-        <span class="stat">LVL: <b id="levelVal">1</b></span>
+        <span class="stat">LEVER: <b id="levelVal">1</b></span>
         <span class="stat">LIVES: <b id="livesVal">5</b></span>
     </div>
 
     <div id="gameArea">
         <div id="paddle"></div>
-        <div id="ball"></div>
+        <div id="ball"></div> 
         <div id="bricks"></div>
     </div>
+
+    <div id="overlay" class="overlay overlay--ready">
+        <h1 id="overlayTitle">READY</h1>
+        <p  id="overlayText">Press SPACE to start</p>
+        <div id="levelMenu" class="level-menu" style="display: none;">
+            <h2>Chọn màn</h2>
+            <div class="level-list">
+                <button class="level-btn" data-level="0">1</button>
+                <button class="level-btn" data-level="1">2</button>
+                <button class="level-btn" data-level="2">3</button>
+                <button class="level-btn" data-level="3">4</button>
+            </div>
+            <p class="hint">Keys 1-6 or mouse click</p>
+        </div>
+    </div>
+
 
 </div>
 
