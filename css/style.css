@@ -82,6 +82,7 @@ body {
     left: 0;
     width: 12px;
     height: 12px;
+    border-radius: 50%;
     background-color: var(--hp-1);
     box-shadow:
             inset 0 -3px 0 #b45309,
@@ -103,12 +104,106 @@ body {
     left: 0;
     height: 24px;
     background-color: #4ade80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: rgba(0,0,0,0.7);
     box-shadow:
             inset 0 -4px 0 rgba(0,0,0,0.35),
             inset 0 2px 0 rgba(255,255,255,0.45);
     will-change: transform;
 }
 
-.brick.hp-2 { background-color: #38bdf8; }
+.brick[data-hp="1"] { background-color: #4ade80; }
+.brick[data-hp="2"] { background-color: #38bdf8; }
+.brick[data-hp="3"] { background-color: #fcd34d; }
+.brick[data-hp="4"] { background-color: #f87171; }
 
-.brick.hp-3 { background-color: #fcd34d; }
+.brick--indestructible {
+    background-color: #6b7280;
+    color: rgba(255,255,255,0.9);
+    box-shadow:
+            inset 0 -4px 0 rgba(0,0,0,0.5),
+            inset 0 2px 0 rgba(255,255,255,0.2);
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.78);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    z-index: 100;
+    text-align: center;
+}
+
+.overlay h1 {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: #fcd34d;
+    text-shadow: 0 4px 12px rgba(252, 211, 77, 0.5);
+}
+
+.overlay p {
+    font-size: 18px;
+    opacity: 0.85;
+}
+
+.overlay--ready    h1 { color: #4ade80; }
+.overlay--playing  { display: none; }
+.overlay--paused   h1 { color: #38bdf8; }
+.overlay--gameover h1 { color: #f87171; }
+
+.overlay .hint {
+    font-size: 14px;
+    opacity: 0.6;
+    margin-top: 8px;
+}
+
+.level-menu {
+    margin-top: 24px;
+    padding: 16px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    max-width: 360px;
+}
+
+.level-menu h2 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #fff;
+    opacity: 0.9;
+}
+
+.level-list {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.level-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: #4ade80;
+    color: #1a1a2e;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, background-color 0.1s;
+}
+
+.level-btn:hover {
+    background-color: #86efac;
+    transform: scale(1.05);
+}
+
+.level-btn:active {
+    transform: scale(0.95);
+}
