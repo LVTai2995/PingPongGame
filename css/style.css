@@ -128,6 +128,15 @@ body {
             inset 0 2px 0 rgba(255,255,255,0.2);
 }
 
+.brick--moving {
+    background-color: #ff6300;
+    color: rgba(255,255,255,0.9);
+    box-shadow:
+            inset 0 -4px 0 rgba(0,0,0,0.5),
+            inset 0 2px 0 rgba(255,255,255,0.2);
+
+}
+
 .overlay {
     position: absolute;
     inset: 0;
