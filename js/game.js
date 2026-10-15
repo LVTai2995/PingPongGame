@@ -8,6 +8,7 @@ const overlayEl = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlayTitle');
 const overlayText = document.getElementById('overlayText');
 const levelMenu = document.getElementById('levelMenu');
+const levelEl  = document.getElementById('levelVal');
 
 const GAME_WIDTH = 480;
 const GAME_HEIGHT = 640;
@@ -398,6 +399,7 @@ function render() {
     ballEl.style.transform = `translate(${ball.x - ball.radius}px, ${ball.y - ball.radius}px)`;
     livesEl.textContent = lives;
     scoreEl.textContent = score;
+    levelEl.textContent  = currentLevel + 1;
 }
 
 function gameLoop() {
