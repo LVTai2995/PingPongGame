@@ -8,7 +8,7 @@ const overlayEl = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlayTitle');
 const overlayText = document.getElementById('overlayText');
 const levelMenu = document.getElementById('levelMenu');
-const levelEl  = document.getElementById('levelVal');
+const levelEl = document.getElementById('levelVal');
 
 const GAME_WIDTH = 480;
 const GAME_HEIGHT = 640;
@@ -17,7 +17,7 @@ const PADDLE_SPEED = 7;
 const BALL_SPEED = 4;
 const INITIAL_LIVES = 5;
 
-const BRICK_COLS       = 7;
+const BRICK_COLS = 10;
 const BRICK_PADDING = 6;
 const BRICK_HEIGHT = 24;
 const BRICK_OFFSET_TOP = 50;
@@ -50,41 +50,44 @@ const LEVELS = [
     {
         name: 'Level 1',
         rows: [
-            [1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1, 1, 1, 1, 1]
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         ]
     },
     {
         name: 'Level 2',
         rows: [
-            [1, 1, 1, 1, 1, 1, 1],
-            [0, 2, 2, 2, 2, 2, 0],
-            [0, 0, 3, 3, 3, 0, 0],
-            [0, 0, 0, 4, 0, 0, 0]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [ 4,  4,  4,  4,  4,  4,  4,  4,  4,  4],
+            [ 1,  3,  0,  0,  0,  0,  0,  0,  3,  1],
+            [ 1,  0,  2,  1,  2,  2,  1,  2,  0,  1],
+            [-1, -1, -1,  1, -1, -1,  1, -1, -1, -1]
         ]
     },
     {
         name: 'Level 3',
         rows: [
-            [-1, -1, -1, -1, -1, -1, -1],
-            [4,  4,  4,  4,  4,  4,  4],
-            [1,  3,  0,  0,  0,  3,  1],
-            [1,  0,  2,  1,  2,  0,  1],
-            [-1, -1, -1, 1, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
+            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
+            [-1,  4,  3,  0,  0,  0,  0,  3,  4, -1],
+            [-1,  4, -1,  0,  0,  0,  0, -1,  4, -1],
+            [-1, -1, -1,  0,  0,  0,  0, -1, -1, -1]
         ]
     },
     {
         name: 'Level 4',
         rows: [
-            [-1, -1, -1, -1, -1, -1, -1],
-            [1,  1,  1,  1,  1,  1,  1],
-            [1,  4,  3,  0,  3,  4,  1],
-            [1,  4,  3,  0,  3,  4,  1],
-            [-1,  4,  3,  0,  3,  4,  -1],
-            [-1,  4, -1,  0, -1,  4,  -1],
-            [-1, -1, -1, 0, -1, -1, -1]
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
+            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
+            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
+            [-1,  4,  3,  0,  0,  0,  0,  3,  4, -1],
+            [-1,  4, -1,  0,  0,  0,  0, -1,  4, -1],
+            [-1, -1, -1,  0,  0,  0,  0, -1, -1, -1]
         ]
     }
 ];
@@ -97,7 +100,7 @@ let bricks = [];
 let lives = INITIAL_LIVES;
 let score = 0;
 
-const STATE = {READY: 0, PLAYING: 1, PAUSED: 2, GAME_OVER: 3,  WIN: 4};
+const STATE = {READY: 0, PLAYING: 1, PAUSED: 2, GAME_OVER: 3, WIN: 4};
 let gameState = STATE.READY;
 
 window.addEventListener('keydown', (e) => {
@@ -154,8 +157,8 @@ function initBricks() {
     bricks = [];
 
     const level = LEVELS[currentLevel];
-    const ROWS  = level.rows.length;
-    const COLS  = level.rows[0].length;
+    const ROWS = level.rows.length;
+    const COLS = level.rows[0].length;
 
     for (let r = 0; r < ROWS; r++) {
         bricks[r] = [];
@@ -163,12 +166,12 @@ function initBricks() {
             const cell = level.rows[r][c];
 
             if (cell === 0) {
-                bricks[r][c] = { status: 0, indestructible: false };
+                bricks[r][c] = {status: 0, indestructible: false};
                 continue;
             }
 
             const x = BRICK_OFFSET_LEFT + c * (BRICK_WIDTH + BRICK_PADDING);
-            const y = BRICK_OFFSET_TOP  + r * (BRICK_HEIGHT + BRICK_PADDING);
+            const y = BRICK_OFFSET_TOP + r * (BRICK_HEIGHT + BRICK_PADDING);
 
             const isIndestructible = (cell === -1);
 
@@ -211,17 +214,17 @@ function setOverlay(state) {
         overlayEl.classList.add('overlay--paused');
         overlayTitle.textContent = 'PAUSED';
         overlayText.textContent = 'Press SPACE to resume';
-        levelMenu.style.display  = 'block';
+        levelMenu.style.display = 'block';
         updateLevelMenu();
     } else if (state === STATE.GAME_OVER) {
         overlayEl.classList.add('overlay--gameover');
         overlayTitle.textContent = 'GAME OVER';
         overlayText.textContent = 'Score: ' + score + ' — Press SPACE to restart';
-    } else if (state === STATE.WIN) {                       
-        overlayEl.classList.add('overlay--gameover');         
+    } else if (state === STATE.WIN) {
+        overlayEl.classList.add('overlay--gameover');
         overlayTitle.textContent = 'YOU WIN!';
-        overlayText.textContent  = 'Final Score: ' + score + ' — Press SPACE to play again';
-        levelMenu.style.display  = 'none';
+        overlayText.textContent = 'Final Score: ' + score + ' — Press SPACE to play again';
+        levelMenu.style.display = 'none';
     }
 }
 
@@ -247,14 +250,14 @@ function startGame() {
 }
 
 function resetGame() {
-    lives         = INITIAL_LIVES;
-    score         = 0;
-    currentLevel  = 0;
+    lives = INITIAL_LIVES;
+    score = 0;
+    currentLevel = 0;
     initBricks();
     resetBall();
     gameState = STATE.READY;
     overlayTitle.textContent = LEVELS[0].name;
-    overlayText.textContent  = 'Press SPACE to start';
+    overlayText.textContent = 'Press SPACE to start';
     setOverlay(STATE.READY);
 }
 
@@ -275,11 +278,11 @@ function checkLevelComplete() {
         resetBall();
         setOverlay(STATE.READY);
         overlayTitle.textContent = LEVELS[currentLevel].name;
-        overlayText.textContent  = 'Press SPACE to start';
+        overlayText.textContent = 'Press SPACE to start';
     } else {
         gameState = STATE.WIN;
         overlayTitle.textContent = 'YOU WIN!';
-        overlayText.textContent  = 'Final Score: ' + score + ' — Press SPACE to play again';
+        overlayText.textContent = 'Final Score: ' + score + ' — Press SPACE to play again';
         setOverlay(STATE.WIN);
     }
 }
@@ -289,7 +292,7 @@ function updateLevelMenu() {
     buttons.forEach(btn => {
         const lv = parseInt(btn.dataset.level);
         btn.style.opacity = (lv === currentLevel) ? '0.5' : '1';
-        btn.style.cursor  = (lv === currentLevel) ? 'default' : 'pointer';
+        btn.style.cursor = (lv === currentLevel) ? 'default' : 'pointer';
         btn.disabled = (lv === currentLevel);
     });
 }
@@ -399,7 +402,7 @@ function render() {
     ballEl.style.transform = `translate(${ball.x - ball.radius}px, ${ball.y - ball.radius}px)`;
     livesEl.textContent = lives;
     scoreEl.textContent = score;
-    levelEl.textContent  = currentLevel + 1;
+    levelEl.textContent = currentLevel + 1;
 }
 
 function gameLoop() {
@@ -411,6 +414,6 @@ function gameLoop() {
 initBricks();
 resetBall();
 overlayTitle.textContent = LEVELS[0].name;
-overlayText.textContent  = 'Press SPACE to start';
+overlayText.textContent = 'Press SPACE to start';
 setOverlay(STATE.READY);
 requestAnimationFrame(gameLoop);
