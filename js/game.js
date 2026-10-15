@@ -16,6 +16,7 @@ const GAME_HEIGHT = 640;
 const PADDLE_SPEED = 7;
 const BALL_SPEED = 4;
 const INITIAL_LIVES = 5;
+const MOVING_SPEED = 1;
 
 const BRICK_COLS = 10;
 const BRICK_PADDING = 6;
@@ -60,34 +61,32 @@ const LEVELS = [
         name: 'Level 2',
         rows: [
             [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [ 4,  4,  4,  4,  4,  4,  4,  4,  4,  4],
-            [ 1,  3,  0,  0,  0,  0,  0,  0,  3,  1],
-            [ 1,  0,  2,  1,  2,  2,  1,  2,  0,  1],
-            [-1, -1, -1,  1, -1, -1,  1, -1, -1, -1]
+            [4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [1, 3, 0, 0, 0, 0, 0, 0, 3, 1],
+            [1, 0, 2, 1, 2, 2, 1, 2, 0, 1],
+            [-1, -1, -1, 1, -1, -1, 1, -1, -1, -1]
         ]
     },
     {
         name: 'Level 3',
         rows: [
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
-            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
-            [-1,  4,  3,  0,  0,  0,  0,  3,  4, -1],
-            [-1,  4, -1,  0,  0,  0,  0, -1,  4, -1],
-            [-1, -1, -1,  0,  0,  0,  0, -1, -1, -1]
+            [1,  1,  2,  2,  2,  2,  2,  2,  1,  1],
+            [1,  0,  0, -2, -2, -2, -2,  0,  0,  1],
+            [0,  0,  1,  1,  1,  1,  1,  1,  0,  0],
+            [0, -1,  1,  3,  3,  3,  3,  1, -1,  0],
+            [0, -1,  0,  1,  1,  1,  1,  0, -1,  0]
         ]
     },
     {
         name: 'Level 4',
         rows: [
             [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [ 1,  1,  1,  1,  1,  1,  1,  1,  1,  1],
-            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
-            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
-            [-1,  4,  3,  0,  0,  0,  0,  3,  4, -1],
-            [-1,  4, -1,  0,  0,  0,  0, -1,  4, -1],
-            [-1, -1, -1,  0,  0,  0,  0, -1, -1, -1]
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 4, 3, 0, 0, 0, 0, 3, 4, 1],
+            [1, 4, 3, 0, 0, 0, 0, 3, 4, 1],
+            [-1, 4, 3, 0, 0, 0, 0, 3, 4, -1],
+            [-1, 4, -1, 0, 0, 0, 0, -1, 4, -1],
+            [-1, -1, -1, 0, 0, 0, 0, -1, -1, -1]
         ]
     }
 ];
@@ -97,6 +96,7 @@ let currentLevel = 0;
 const keys = {ArrowLeft: false, ArrowRight: false, KeyA: false, KeyD: false};
 
 let bricks = [];
+let movingBricks = [];
 let lives = INITIAL_LIVES;
 let score = 0;
 
@@ -155,6 +155,7 @@ function resetBall() {
 function initBricks() {
     bricksEl.innerHTML = '';
     bricks = [];
+    movingBricks = [];
 
     const level = LEVELS[currentLevel];
     const ROWS = level.rows.length;
@@ -174,6 +175,7 @@ function initBricks() {
             const y = BRICK_OFFSET_TOP + r * (BRICK_HEIGHT + BRICK_PADDING);
 
             const isIndestructible = (cell === -1);
+            const isMoving = (cell === -2);
 
             const div = document.createElement('div');
             div.className = 'brick';
@@ -182,6 +184,9 @@ function initBricks() {
 
             if (isIndestructible) {
                 div.classList.add('brick--indestructible');
+                div.textContent = '';
+            } else if (isMoving) {
+                div.classList.add('brick--moving');
                 div.textContent = '';
             } else {
                 const hp = cell;
@@ -193,13 +198,82 @@ function initBricks() {
 
             bricks[r][c] = {
                 x, y,
-                hp: isIndestructible ? Infinity : cell,
-                points: isIndestructible ? 0 : cell * 10,
+                hp: (isIndestructible || isMoving) ? Infinity : cell,
+                points: (isIndestructible || isMoving) ? 0 : cell * 10,
                 status: 1,
-                indestructible: isIndestructible,
+                indestructible: isIndestructible || isMoving,
+                moving: isMoving,
+                vx: isMoving ? MOVING_SPEED : 0,
+                minX: isMoving ? x : 0,
+                maxX: isMoving ? x : 0,
+                row: r,
+                col: c,
+                isMovingBrick: false,
                 el: div
             };
         }
+    }
+
+    updateMovingBrickBoundaries();
+}
+
+function updateMovingBrickBoundaries() {
+    const processed = new Set();
+
+    for (let r = 0; r < bricks.length; r++) {
+        for (let c = 0; c < bricks[r].length; c++) {
+            const brick = bricks[r][c];
+            if (!brick || !brick.moving) continue;
+
+            const key = r + ',' + c;
+            if (processed.has(key)) continue;
+
+            let endC = c;
+            while (endC + 1 < bricks[r].length && bricks[r][endC + 1] && bricks[r][endC + 1].moving) {
+                endC++;
+            }
+
+            const startX = BRICK_OFFSET_LEFT + c * (BRICK_WIDTH + BRICK_PADDING);
+            const endX = BRICK_OFFSET_LEFT + endC * (BRICK_WIDTH + BRICK_PADDING);
+
+            for (let k = c; k <= endC; k++) {
+                if (k === c) {
+                    brick.minX = startX;
+                    brick.maxX = endX;
+                    brick.x = startX;
+                    brick.isMovingBrick = true;
+                    movingBricks.push(brick);
+                } else {
+                    const marker = bricks[r][k];
+                    if (marker && marker.el) {
+                        marker.status = 0;
+                        marker.el.remove();
+                    }
+                    bricks[r][k] = { status: 0, indestructible: false };
+                }
+                processed.add(r + ',' + k);
+            }
+        }
+    }
+}
+
+function updateMovingBricks() {
+    for (let i = 0; i < movingBricks.length; i++) {
+        const b = movingBricks[i];
+        if (b.status !== 1) continue;
+
+        let newX = b.x + b.vx;
+
+        if (newX > b.maxX) {
+            newX = b.maxX;
+            b.vx = -Math.abs(b.vx);
+        } else if (newX < b.minX) {
+            newX = b.minX;
+            b.vx = Math.abs(b.vx);
+        }
+
+        b.x = newX;
+        b.el.style.transform = `translate(${newX}px, ${b.y}px)`;
     }
 }
 
@@ -316,6 +390,8 @@ function update() {
 
     if (paddle.x < 0) paddle.x = 0;
     if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
+
+    updateMovingBricks();
 
     ball.x += ball.vx;
     ball.y += ball.vy;
