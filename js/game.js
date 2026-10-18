@@ -177,6 +177,7 @@ function initBricks() {
 
             const isIndestructible = (cell === -1);
             const isMoving = (cell === -2);
+            const isExplosive = (cell === -3);
 
             const div = document.createElement('div');
             div.className = 'brick';
@@ -189,6 +190,9 @@ function initBricks() {
             } else if (isMoving) {
                 div.classList.add('brick--moving');
                 div.textContent = '';
+            } else if (isExplosive) {
+                div.classList.add('brick--explosive');
+                div.textContent = '!!!';
             } else {
                 const hp = cell;
                 div.dataset.hp = hp;
@@ -204,6 +208,7 @@ function initBricks() {
                 status: 1,
                 indestructible: isIndestructible || isMoving,
                 moving: isMoving,
+                explosive: isExplosive,
                 vx: isMoving ? MOVING_SPEED : 0,
                 minX: isMoving ? x : 0,
                 maxX: isMoving ? x : 0,
