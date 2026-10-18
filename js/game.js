@@ -17,6 +17,7 @@ const PADDLE_SPEED = 7;
 const BALL_SPEED = 4;
 const INITIAL_LIVES = 5;
 const MOVING_SPEED = 1;
+const EXPLOSION_RADIUS = 1;
 
 const BRICK_COLS = 10;
 const BRICK_PADDING = 6;
