@@ -474,7 +474,12 @@ function update() {
                     b.status = 0;
                     b.el.remove();
                     score += b.points;
-                    checkLevelComplete()
+
+                    if (b.explosive) {
+                        triggerExplosion(r, c);
+                    } else {
+                        checkLevelComplete();
+                    }
                 } else {
                     b.el.textContent = b.hp;
                     b.el.dataset.hp = b.hp;
