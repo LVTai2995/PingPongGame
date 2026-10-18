@@ -336,6 +336,27 @@ function resetGame() {
     setOverlay(STATE.READY);
 }
 
+function triggerExplosion(row, col) {
+    for (let r = row - EXPLOSION_RADIUS; r <= row + EXPLOSION_RADIUS; r++) {
+        for (let c = col - EXPLOSION_RADIUS; c <= col + EXPLOSION_RADIUS; c++) {
+            if (r < 0 || r >= bricks.length) continue;
+            if (c < 0 || c >= bricks[r].length) continue;
+            if (r === row && c === col) continue;
+
+            const b = bricks[r][c];
+            if (b.status !== 1) continue;
+            if (b.indestructible) continue;
+
+            b.status = 0;
+            b.el.remove();
+            score += b.points;
+        }
+    }
+
+    checkLevelComplete();
+}
+
+
 function checkLevelComplete() {
     for (let r = 0; r < bricks.length; r++) {
         for (let c = 0; c < bricks[r].length; c++) {
