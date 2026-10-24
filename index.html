@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="VN">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>PING PONG</title>
@@ -15,7 +15,6 @@
             --spread-progress: 0;
         }
 
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -29,6 +28,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
+            font-family: sans-serif;
         }
 
         .container {
@@ -77,9 +77,8 @@
             width: 200px;
             height: 12px;
             background-color: #f8f8f8;
-            box-shadow:
-                    inset 0 -3px 0 #b00020,
-                    inset 0 2px 0 #ffffff;
+            box-shadow: inset 0 -3px 0 #b00020,
+            inset 0 2px 0 #ffffff;
             will-change: transform;
             z-index: 3;
         }
@@ -92,9 +91,8 @@
             height: 12px;
             border-radius: 50%;
             background-color: var(--hp-1);
-            box-shadow:
-                    inset 0 -3px 0 #b45309,
-                    inset 0 2px 0 #fef3c7;
+            box-shadow: inset 0 -3px 0 #b45309,
+            inset 0 2px 0 #fef3c7;
             will-change: transform;
             z-index: 4;
         }
@@ -116,51 +114,64 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            color: rgba(0,0,0,0.7);
-            box-shadow:
-                    inset 0 -4px 0 rgba(0,0,0,0.35),
-                    inset 0 2px 0 rgba(255,255,255,0.45);
+            color: rgba(0, 0, 0, 0.7);
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.35),
+            inset 0 2px 0 rgba(255, 255, 255, 0.45);
             will-change: transform;
         }
 
-        .brick[data-hp="1"] { background-color: #4ade80; }
-        .brick[data-hp="2"] { background-color: #38bdf8; }
-        .brick[data-hp="3"] { background-color: #fcd34d; }
-        .brick[data-hp="4"] { background-color: #f87171; }
+        .brick[data-hp="1"] {
+            background-color: #4ade80;
+        }
+
+        .brick[data-hp="2"] {
+            background-color: #38bdf8;
+        }
+
+        .brick[data-hp="3"] {
+            background-color: #fcd34d;
+        }
+
+        .brick[data-hp="4"] {
+            background-color: #f87171;
+        }
+
+        .brick[data-hp="5"] {
+            background-color: #fb923c;
+        }
+
+        .brick[data-hp="6"] {
+            background-color: #c084fc;
+        }
 
         .brick--indestructible {
             background-color: #6b7280;
-            color: rgba(255,255,255,0.9);
-            box-shadow:
-                    inset 0 -4px 0 rgba(0,0,0,0.5),
-                    inset 0 2px 0 rgba(255,255,255,0.2);
+            color: rgba(255, 255, 255, 0.9);
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.5),
+            inset 0 2px 0 rgba(255, 255, 255, 0.2);
         }
 
         .brick--moving {
             background-color: #ff6300;
-            color: rgba(255,255,255,0.9);
-            box-shadow:
-                    inset 0 -4px 0 rgba(0,0,0,0.5),
-                    inset 0 2px 0 rgba(255,255,255,0.2);
+            color: rgba(255, 255, 255, 0.9);
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.5),
+            inset 0 2px 0 rgba(255, 255, 255, 0.2);
         }
 
         .brick--explosive {
             background: #40434c;
             font-size: 16px;
             color: #f87171;
-            box-shadow:
-                    inset 0 -4px 0 rgba(0,0,0,0.5),
-                    inset 0 2px 0 rgba(255,255,255,0.2);
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.5),
+            inset 0 2px 0 rgba(255, 255, 255, 0.2);
         }
-
 
         .brick--spreading {
             overflow: hidden;
             background: #a855f7;
-            color: rgba(255,255,255,0.95);
-            box-shadow:
-                    inset 0 -4px 0 rgba(0,0,0,0.5),
-                    inset 0 2px 0 rgba(255,255,255,0.2);
+            color: rgba(255, 255, 255, 0.95);
+            box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.5),
+            inset 0 2px 0 rgba(255, 255, 255, 0.2);
         }
 
         .brick--spreading::before {
@@ -171,7 +182,7 @@
             font-size: 9px;
             font-weight: bold;
             color: #fff;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.9);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
         }
 
         .brick--spreading::after {
@@ -180,7 +191,7 @@
             left: 0;
             bottom: 0;
             height: 4px;
-            width: calc(var(--spread-progress, 1) * 100%);
+            width: calc(var(--spread-progress, 0) * 100%);
             background: #22c55e;
             transition: width 0.1s linear, background 0.3s;
         }
@@ -195,7 +206,6 @@
 
         .brick--spreading[data-spread-state="danger"]::after {
             background: #ef4444;
-            animation: danger-blink 0.5s ease-in-out infinite;
         }
 
         .brick--spreading[data-spread-state="safe"]::after {
@@ -227,10 +237,21 @@
             opacity: 0.85;
         }
 
-        .overlay--ready    h1 { color: #4ade80; }
-        .overlay--playing  { display: none; }
-        .overlay--paused   h1 { color: #38bdf8; }
-        .overlay--gameover h1 { color: #f87171; }
+        .overlay--ready h1 {
+            color: #4ade80;
+        }
+
+        .overlay--playing {
+            display: none;
+        }
+
+        .overlay--paused h1 {
+            color: #38bdf8;
+        }
+
+        .overlay--gameover h1 {
+            color: #f87171;
+        }
 
         .overlay .hint {
             font-size: 14px;
@@ -290,19 +311,19 @@
 
     <div class="top-bar">
         <span class="stat">SCORE: <b id="scoreVal">0</b></span>
-        <span class="stat">LEVER: <b id="levelVal">1</b></span>
+        <span class="stat">LEVEL: <b id="levelVal">1</b></span>
         <span class="stat">LIVES: <b id="livesVal">5</b></span>
     </div>
 
     <div id="gameArea">
         <div id="paddle"></div>
-        <div id="ball"></div> 
+        <div id="ball"></div>
         <div id="bricks"></div>
     </div>
 
     <div id="overlay" class="overlay overlay--ready">
         <h1 id="overlayTitle">READY</h1>
-        <p  id="overlayText">Press SPACE to start</p>
+        <p id="overlayText">Press SPACE to start</p>
         <div id="levelMenu" class="level-menu" style="display: none;">
             <h2>Chọn màn</h2>
             <div class="level-list">
@@ -312,10 +333,9 @@
                 <button class="level-btn" data-level="3">4</button>
                 <button class="level-btn" data-level="4">5</button>
             </div>
-            <p class="hint">Keys 1-6 or mouse click</p>
+            <p class="hint">Keys 1-5 or mouse click</p>
         </div>
     </div>
-
 
 </div>
 
