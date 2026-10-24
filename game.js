@@ -387,6 +387,98 @@ function triggerExplosion(row, col) {
     checkLevelComplete();
 }
 
+function updateSpreadUI(b, remain) {
+    const progress = Math.max(0, remain / b.spreadDuration);
+    b.el.style.setProperty('--spread-progress', progress);
+    b.el.dataset.spreadTime = Math.ceil(remain / 1000) + 's';
+
+    if (progress > 0.5) {
+        b.el.dataset.spreadState = 'safe';
+    } else if (progress > 0.2) {
+        b.el.dataset.spreadState = 'warning';
+    } else {
+        b.el.dataset.spreadState = 'danger';
+    }
+}
+
+function createBrickAt(r, c, hp) {
+    const x = BRICK_OFFSET_LEFT + c * (BRICK_WIDTH + BRICK_PADDING);
+    const y = BRICK_OFFSET_TOP + r * (BRICK_HEIGHT + BRICK_PADDING);
+
+    const div = document.createElement('div');
+    div.className = 'brick';
+    div.style.width = BRICK_WIDTH + 'px';
+    div.style.transform = `translate(${x}px, ${y}px)`;
+    div.dataset.hp = hp;
+    div.textContent = hp;
+
+    bricksEl.appendChild(div);
+
+    bricks[r][c] = {
+        x, y,
+        hp,
+        points: hp * 10,
+        status: 1,
+        indestructible: false,
+        moving: false,
+        explosive: false,
+        spreading: false,
+        spreadDeadline: 0,
+        spreadTimer: -1,
+        spreadDuration: SPREADING_DURATION,
+        hasSpread: false,
+        vx: 0,
+        minX: 0,
+        maxX: 0,
+        row: r,
+        col: c,
+        isMovingBrick: false,
+        el: div
+    };
+}
+
+function trySpread(r, c) {
+    const dirs = [[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+    let hasEmpty = false;
+
+    for (const [dr, dc] of dirs) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nr >= bricks.length) continue;
+        if (nc < 0 || nc >= bricks[nr].length) continue;
+
+        const target = bricks[nr][nc];
+        if (!target || target.status !== 0) continue;
+
+        hasEmpty = true;
+        createBrickAt(nr, nc, SPREAD_BABY_HP);
+    }
+
+    return hasEmpty;
+}
+
+function updateSpreadingBricks() {
+    for (let r = 0; r < bricks.length; r++) {
+        for (let c = 0; c < bricks[r].length; c++) {
+            const b = bricks[r][c];
+            if (!b || b.status !== 1 || !b.spreading) continue;
+            if (b.hasSpread) continue;
+            if (b.spreadTimer === -1) continue;
+
+            const remain = b.spreadDeadline - performance.now();
+            updateSpreadUI(b, remain);
+
+            if (remain <= 0) {
+                const didSpread = trySpread(r, c);
+                b.hasSpread = true;
+                b.spreadTimer = -1;
+                b.el.style.setProperty('--spread-progress', 1);
+                b.el.dataset.spreadState = didSpread ? 'safe' : 'idle';
+                b.el.removeAttribute('data-spread-time');
+            }
+        }
+    }
+}
 
 function checkLevelComplete() {
     for (let r = 0; r < bricks.length; r++) {
@@ -445,6 +537,7 @@ function update() {
     if (paddle.x + paddle.width > GAME_WIDTH) paddle.x = GAME_WIDTH - paddle.width;
 
     updateMovingBricks();
+    updateSpreadingBricks();
 
     ball.x += ball.vx;
     ball.y += ball.vy;
@@ -501,6 +594,14 @@ function update() {
                 }
 
                 b.hp--;
+
+                if (b.spreading && b.spreadTimer === -1) {
+                    b.spreadTimer = b.spreadDuration;
+                    b.spreadDeadline = performance.now() + b.spreadDuration;
+                    b.hasSpread = false;
+                    updateSpreadUI(b, b.spreadDuration);
+                }
+
                 if (b.hp <= 0) {
                     b.status = 0;
                     b.el.remove();
@@ -513,7 +614,11 @@ function update() {
                     }
                 } else {
                     b.el.textContent = b.hp;
-                    b.el.dataset.hp = b.hp;
+                    if (b.spreading) {
+                        b.el.dataset.spreadHp = b.hp;
+                    } else {
+                        b.el.dataset.hp = b.hp;
+                    }
                 }
                 break;
             }
