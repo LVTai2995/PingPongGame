@@ -74,35 +74,35 @@ const LEVELS = [
     {
         name: 'Level 3',
         rows: [
-            [1,  1,  2,  2,  2,  2,  2,  2,  1,  1],
-            [1,  0,  0, -2, -2, -2, -2,  0,  0,  1],
-            [0,  0,  1,  1,  1,  1,  1,  1,  0,  0],
-            [0, -1,  1,  3,  3,  3,  3,  1, -1,  0],
-            [0, -1,  0,  1,  1,  1,  1,  0, -1,  0]
+            [1, 1, 2, 2, 2, 2, 2, 2, 1, 1],
+            [1, 0, 0, -2, -2, -2, -2, 0, 0, 1],
+            [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, -1, 1, 3, 3, 3, 3, 1, -1, 0],
+            [0, -1, 0, 1, 1, 1, 1, 0, -1, 0]
         ]
     },
     {
         name: 'Level 4',
         rows: [
             [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-3,  0,  0,  1,  1,  1,  1,  0,  0, -3],
-            [ 0,  0,  0, -3,  2,  2, -3,  0,  0,  0],
-            [ 1,  1,  0,  0,  2,  2,  0,  0,  1,  1],
-            [ 1,  4,  3,  0,  0,  0,  0,  3,  4,  1],
-            [-1,  4,  3,  0,  0,  0,  0,  3,  4, -1],
-            [-1, -1, -1,  0,  0,  0,  0, -1, -1, -1]
+            [-3, 0, 0, 1, 1, 1, 1, 0, 0, -3],
+            [0, 0, 0, -3, 2, 2, -3, 0, 0, 0],
+            [1, 1, 0, 0, 2, 2, 0, 0, 1, 1],
+            [1, 4, 3, 0, 0, 0, 0, 3, 4, 1],
+            [-1, 4, 3, 0, 0, 0, 0, 3, 4, -1],
+            [-1, -1, -1, 0, 0, 0, 0, -1, -1, -1]
         ]
     },
     {
         name: 'Level 5',
         rows: [
-            [-1, -3,  2,  2,  3,  3,  2,  2, -3, -1],
-            [ 2,  3,  4, -1,  0,  0, -1,  4,  3,  2],
-            [ 1,  0, -3,  6,  4,  4,  6, -3,  0,  1],
-            [-1,  2,  0,  4, -1, -1,  4,  0,  2, -1],
-            [ 0, -2, -2, -2,  0,  0, -2, -2, -2,  0],
-            [ 0,  1,  2,  3,  0,  0,  3,  2,  1,  0],
-            [ 1,  0, -1,  0,  0,  0,  0, -1,  0,  1]
+            [-1, -3, 2, 2, 3, 3, 2, 2, -3, -1],
+            [2, 3, 4, -1, 0, 0, -1, 4, 3, 2],
+            [1, 0, -3, 6, 4, 4, 6, -3, 0, 1],
+            [-1, 2, 0, 4, -1, -1, 4, 0, 2, -1],
+            [0, -2, -2, -2, 0, 0, -2, -2, -2, 0],
+            [0, 1, 2, 3, 0, 0, 3, 2, 1, 0],
+            [1, 0, -1, 0, 0, 0, 0, -1, 0, 1]
         ]
     }
 ];
@@ -193,6 +193,7 @@ function initBricks() {
             const isIndestructible = (cell === -1);
             const isMoving = (cell === -2);
             const isExplosive = (cell === -3);
+            const isSpreading = (cell === 6);
 
             const div = document.createElement('div');
             div.className = 'brick';
@@ -208,6 +209,11 @@ function initBricks() {
             } else if (isExplosive) {
                 div.classList.add('brick--explosive');
                 div.textContent = '!!!';
+            } else if (isSpreading) {
+                div.classList.add('brick--spreading');
+                div.dataset.spreadHp = SPREADING_HP;
+                div.dataset.spreadState = 'idle';
+                div.textContent = SPREADING_HP;
             } else {
                 const hp = cell;
                 div.dataset.hp = hp;
@@ -218,12 +224,17 @@ function initBricks() {
 
             bricks[r][c] = {
                 x, y,
-                hp: (isIndestructible || isMoving) ? Infinity : cell,
-                points: (isIndestructible || isMoving) ? 0 : cell * 10,
+                hp: isSpreading ? SPREADING_HP : (isIndestructible || isMoving) ? Infinity : cell,
+                points: isSpreading ? SPREADING_HP * 10 : (isIndestructible || isMoving) ? 0 : cell * 10,
                 status: 1,
                 indestructible: isIndestructible || isMoving,
                 moving: isMoving,
                 explosive: isExplosive,
+                spreading: isSpreading,
+                spreadDeadline: 0,
+                spreadTimer: -1,
+                spreadDuration: SPREADING_DURATION,
+                hasSpread: false,
                 vx: isMoving ? MOVING_SPEED : 0,
                 minX: isMoving ? x : 0,
                 maxX: isMoving ? x : 0,
@@ -270,7 +281,7 @@ function updateMovingBrickBoundaries() {
                         marker.status = 0;
                         marker.el.remove();
                     }
-                    bricks[r][k] = { status: 0, indestructible: false };
+                    bricks[r][k] = {status: 0, indestructible: false};
                 }
                 processed.add(r + ',' + k);
             }
