@@ -18,6 +18,9 @@ const BALL_SPEED = 4;
 const INITIAL_LIVES = 5;
 const MOVING_SPEED = 1;
 const EXPLOSION_RADIUS = 1;
+const SPREADING_HP = 6;
+const SPREADING_DURATION = 10 * 1000;
+const SPREAD_BABY_HP = 1;
 
 const BRICK_COLS = 10;
 const BRICK_PADDING = 6;
